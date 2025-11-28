@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>HUD Industrial Futurista</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ========================= */
+/* BASE DO TEMA — HUD FUTURISTA */
+/* ========================= */
+body {
+    margin: 0;
+    background: radial-gradient(circle at center, #02121f 0%, #00070d 100%);
+    color: #d9faff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    overflow-x: hidden;
+}
+main {
+    margin-left: 140px;
+    padding: 30px;
+}
+h1 {
+    text-shadow: 0 0 12px #00eaff;
+}
+
+/* Grelha holográfica */
+.hud-lines {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background-image:
+        linear-gradient(rgba(0,255,255,0.05) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(0,255,255,0.05) 2px, transparent 2px);
+    background-size: 60px 60px;
+}
+
+/* ========================= */
+/* MENU LATERAL FUTURISTA   */
+/* ========================= */
+#menu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100vh;
+    padding-top: 20px;
+    background: rgba(0, 20, 40, 0.25);
+    border-right: 2px solid #00eaff88;
+    backdrop-filter: blur(12px);
+    transition: 0.4s;
+    z-index: 1000;
+}
+#menu:hover { width: 260px; }
+
+.menu-item {
+    padding: 18px;
+    font-size: 20px;
+    color: #00eaff;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #00eaff22;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+.menu-item:hover {
+    background: rgba(0,255,255,0.18);
+    box-shadow: inset 0 0 12px #00eaff;
+}
+.menu-item.selected {
+    background: rgba(0,255,255,0.3);
+    box-shadow: inset 0 0 18px #00eaff, 0 0 10px #00eaffaa;
+    color: #fff;
+}
+
+/* ========================= */
+/* HUD CIRCULAR — JARVIS     */
+/* ========================= */
+#hudCircular {
+    position: fixed;
+    right: 40px;
+    top: 40px;
+    width: 280px;
+    height: 280px;
+    z-index: 999;
+}
+.circleLayer {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid #00eaffa0;
+    animation: rotate 10s linear infinite;
+    box-shadow: 0 0 12px #00eaffa5;
+}
+.layer2 { width: 200px; height: 200px; animation-duration: 6s; }
+.layer3 { width: 150px; height: 150px; animation-duration: 4s; }
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* BOTÕES DO HUD */
+.hudBtn {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 130px;
+    padding: 7px;
+    color: #00eaff;
+    text-align: center;
+    border-radius: 25px;
+    background: rgba(0,255,255,0.12);
+    border: 1px solid #00eaff88;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    text-shadow: 0 0 8px #00eaff;
+    transition: 0.2s;
+    backdrop-filter: blur(6px);
+}
+.hudBtn:hover {
+    background: rgba(0,255,255,0.35);
+    box-shadow: 0 0 14px #00eaff;
+    transform: scale(1.12) translate(-50%, -50%);
+}
+
+.hudBtn:nth-child(4) { transform: translate(-50%, -180%); }
+.hudBtn:nth-child(5) { transform: translate(-150%, -50%); }
+.hudBtn:nth-child(6) { transform: translate(-50%, 80%); }
+.hudBtn:nth-child(7) { transform: translate(50%, -50%); }
+.hudBtn:nth-child(8) { transform: translate(-50%, -320%); }
+
+/* ========================= */
+/* CARDS HUD */
+/* ========================= */
+.card {
+    background: rgba(0, 30, 50, 0.28);
+    padding: 25px;
+    border-radius: 14px;
+    border: 1px solid #00eaff55;
+    box-shadow: 0 0 18px #00eaff55;
+    backdrop-filter: blur(12px);
+    margin-bottom: 40px;
+}
+
+/* ========================= */
+/* BOTÕES */
+/* ========================= */
+.btn {
+    padding: 14px 28px;
+    background: rgba(0,255,255,0.2);
+    border: 2px solid #00eaff;
+    color: #00eaff;
+    cursor: pointer;
+    border-radius: 40px;
+    margin-right: 10px;
+    transition: 0.2s;
+    text-shadow: 0 0 10px #00eaff;
+}
+.btn:hover {
+    background: rgba(0,255,255,0.4);
+    box-shadow: 0 0 16px #00eaff;
+    transform: scale(1.05);
+}
+
+/* Toggle */
+.toggle {
+    width: 70px;
+    height: 30px;
+    border-radius: 30px;
+    background: rgba(0,255,255,0.15);
+    border: 2px solid #00eaff;
+    cursor: pointer;
+    position: relative;
+}
+.toggle::after {
+    content: "";
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #00eaff;
+    position: absolute;
+    left: 2px; top: 2px;
+    transition: 0.25s;
+}
+.toggle.on {
+    background: rgba(0,255,180,0.4);
+}
+.toggle.on::after {
+    left: 40px;
+}
+
+/* ESTOQUE & EXPEDIÇÃO */
+.estoque-grid, .expedicao-grid {
+    display: grid;
+    gap: 12px;
+}
+.estoque-grid { grid-template-columns: repeat(7, 1fr); }
+.expedicao-grid { grid-template-columns: repeat(6, 1fr); }
+
+.posicao, .exp {
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse 2s infinite alternate;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+@keyframes pulse {
+    from { box-shadow: 0 0 6px #00eaff66; }
+    to { box-shadow: 0 0 16px #00eaffdd; }
+}
+.vermelho { background: #b00000; }
+.azul { background: #0044ff; }
+.preto { background: #111; }
+.vazio { background: #333; color: #aaa; }
+.exp.oco { background: #222; color: #777; }
+
+/* ALERTA HOLOGRÁFICO */
+#alertaH {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 25px;
+    font-size: 20px;
+    background: rgba(255,40,0,0.15);
+    border: 2px solid rgba(255,60,0,0.5);
+    border-radius: 18px;
+    box-shadow: 0 0 20px #ff3300;
+    text-shadow: 0 0 10px #ff6600;
+    opacity: 0;
+    transition: 0.3s;
+    backdrop-filter: blur(5px);
+}
+.alertaOn {
+    opacity: 1 !important;
+    animation: alertaPulse 1s infinite;
+}
+@keyframes alertaPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+/* PARTÍCULAS */
+#particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -3;
+    top: 0; left: 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hud-lines"></div>
+<canvas id="particles"></canvas>
+
+<!-- Som de clique -->
+<audio id="sndClick">
+<source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YQcAAACAgICAgICAgICAgICAgICA" type="audio/wav">
+</audio>
+
+<!-- MENU -->
+<div id="menu">
+    <div class="menu-item" onclick="goto('dashboard')">Dashboard</div>
+    <div class="menu-item" onclick="goto('estoqueArea')">Estoque</div>
+    <div class="menu-item" onclick="goto('processo')">Processo</div>
+    <div class="menu-item" onclick="goto('expedicoesArea')">Expedição</div>
+    <div class="menu-item" onclick="goto('sensores')">Sensores</div>
+</div>
+
+<!-- HUD CIRCULAR -->
+<div id="hudCircular">
+    <div class="circleLayer layer1"></div>
+    <div class="circleLayer layer2"></div>
+    <div class="circleLayer layer3"></div>
+
+    <div class="hudBtn" onclick="goto('dashboard')">Dashboard</div>
+    <div class="hudBtn" onclick="goto('estoqueArea')">Estoque</div>
+    <div class="hudBtn" onclick="goto('processo')">Processo</div>
+    <div class="hudBtn" onclick="goto('expedicoesArea')">Expedição</div>
+    <div class="hudBtn" onclick="goto('sensores')">Sensores</div>
+</div>
+
+<!-- ALERTA -->
+<div id="alertaH">⚠ ALERTA DO SISTEMA ⚠</div>
+
+<main>
+
+<h1 id="dashboard">HUD Industrial - Iron Man</h1>
+
+<!-- CONTROLES -->
+<div id="processo" class="card">
+    <h2>Controles</h2>
+
+    <button class="btn" onclick="alertOn()">Ativar Alerta</button>
+    <button class="btn" onclick="alertOff()">Desativar Alerta</button>
+
+    <br><br>
+
+    <div id="autoToggle" class="toggle"></div>
+</div>
+
+<!-- ESTOQUE -->
+<div id="estoqueArea" class="card">
+    <h2>Estoque</h2>
+    <div id="estoque" class="estoque-grid"></div>
+</div>
+
+<!-- EXPEDIÇÃO -->
+<div id="expedicoesArea" class="card">
+    <h2>Expedição</h2>
+    <div id="expedicoes" class="expedicao-grid"></div>
+</div>
+
+<!-- SENSORES -->
+<div id="sensores" class="card">
+    <h2>Dados Ambientais</h2>
+    <canvas id="chartTemp" height="120"></canvas>
+    <canvas id="chartVars" height="120"></canvas>
+</div>
+
+</main>
+
+<script>
+/* ===================================================== */
+/* SOM DE CLIQUE */
+/* ===================================================== */
+function clickFX(element) {
+    document.getElementById("sndClick").play();
+    console.log("CLICADO:", element);
+}
+
+/* NAVEGAÇÃO */
+function goto(id) {
+    clickFX(id);
+    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+}
+
+/* ALERTA */
+function alertOn() {
+    clickFX("alert on");
+    document.getElementById("alertaH").classList.add("alertaOn");
+}
+function alertOff() {
+    clickFX("alert off");
+    document.getElementById("alertaH").classList.remove("alertaOn");
+}
+
+/* TOGGLE */
+document.getElementById("autoToggle").onclick = function() {
+    clickFX("toggle");
+    this.classList.toggle("on");
+};
+
+/* ESTOQUE */
+const estoque = document.getElementById("estoque");
+const cores = ["vermelho","azul","preto","vazio"];
+
+for (let i=1; i<=28; i++) {
+    let c = cores[Math.floor(Math.random()*4)];
+    let d = document.createElement("div");
+    d.className = "posicao "+c;
+    d.innerHTML = i;
+    d.onclick = () => clickFX("Estoque "+i);
+    estoque.appendChild(d);
+}
+
+/* EXPEDIÇÃO */
+const exp = document.getElementById("expedicoes");
+for (let i=1; i<=12; i++) {
+    let p = Math.random() < 0.5 ? null : Math.floor(Math.random()*9000+1000);
+
+    let d = document.createElement("div");
+    d.className = "exp " + (p ? "" : "oco");
+    d.innerHTML = p ? "Pedido "+p : "Vazio";
+    d.onclick = () => clickFX("Exp "+(p||"vazio"));
+
+    exp.appendChild(d);
+}
+
+/*=====================================================*/
+/* GRÁFICO TEMPERATURA */
+/*=====================================================*/
+let g1 = new Chart(document.getElementById("chartTemp"), {
+    type:"line",
+    data:{ labels:[], datasets:[{data:[], borderColor:"#00eaff", backgroundColor:"#00eaff44"}] },
+    options:{ animation:false }
+});
+
+setInterval(()=>{
+    let h = new Date().toLocaleTimeString().slice(0,5);
+    g1.data.labels.push(h);
+    g1.data.datasets[0].data.push(22 + Math.random()*4);
+    if (g1.data.labels.length > 20) {
+        g1.data.labels.shift();
+        g1.data.datasets[0].data.shift();
+    }
+    g1.update();
+},1000);
+
+/*=====================================================*/
+/* GRÁFICO VARIÁVEIS AMBIENTAIS */
+/*=====================================================*/
+let g2 = new Chart(document.getElementById("chartVars"), {
+    type:"bar",
+    data:{
+        labels:["Tensão","Umidade","Corrente"],
+        datasets:[{backgroundColor:["#00eaff99","#00bbff99","#00ffaa99"], data:[220,45,1.2]}]
+    },
+    options:{ animation:false }
+});
+setInterval(()=>{
+    g2.data.datasets[0].data = [
+        220 + Math.random()*3,
+        45 + Math.random()*4,
+        1.0 + Math.random()*0.4
+    ];
+    g2.update();
+},1000);
+
+/* ===================================================== */
+/* PARTÍCULAS — MÁS INTENSAS, CIANO + VERMELHO */
+/* ===================================================== */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let particles = [];
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+
+        this.dx = (Math.random() - 0.5) * 0.7;
+        this.dy = (Math.random() - 0.5) * 0.7;
+
+        this.size = Math.random() * 3 + 1;
+
+        this.color = Math.random() < 0.5 
+            ? "rgba(0,255,255,0.55)"
+            : "rgba(255,60,60,0.55)";
+    }
+
+    update() {
+        this.x += this.dx;
+        this.y += this.dy;
+
+        if (this.x < 0 || this.x > canvas.width) this.dx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.dy *= -1;
+
+        this.size += (Math.random() - 0.5) * 0.1;
+        if (this.size < 1) this.size = 1;
+        if (this.size > 4) this.size = 4;
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color.replace("0.55","1");
+        ctx.shadowBlur = 12;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 180; i++) particles.push(new Particle());
+
+function animateParticles() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+</script>
+
+</body>
+</html>
