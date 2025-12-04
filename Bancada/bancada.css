@@ -229,3 +229,23 @@ button:hover {
     box-shadow: 0 0 15px var(--neon-blue);
 }
 button:active { transform: scale(0.98); }
+#hud {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    width: 350px;
+    padding: 25px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    border: 5px solid #ff1a1a;
+    box-shadow: 0 0 30px #ff1a1a;
+    font-size: 20px;
+    z-index: 999;
+    animation: hudGlow 2s infinite alternate;
+}
+
+@keyframes hudGlow {
+    0% { box-shadow: 0 0 30px #ff1a1a; border-color: #ff1a1a; }
+    50% { box-shadow: 0 0 50px #ffcc00; border-color: #ffcc00; }
+    100% { box-shadow: 0 0 30px #ff1a1a; border-color: #ff1a1a; }
+}

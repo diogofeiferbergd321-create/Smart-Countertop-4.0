@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>HUD Industrial - Login</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ====== BASE ====== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: radial-gradient(circle at center, #02121f 0%, #00070d 100%);
+    color: #d9faff;
+}
+
+/* ====== LOGIN/CADASTRO ====== */
+#loginPage, #dashboardPage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+.container {
+    background: rgba(0, 20, 40, 0.6);
+    padding: 50px;
+    border-radius: 25px;
+    border: 6px solid #00eaff;
+    box-shadow: 0 0 35px #00eaff88;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    animation: pulseBorder 2s infinite alternate;
+}
+@keyframes pulseBorder {
+    0% { border-color: #00eaff; box-shadow: 0 0 35px #00eaff88; }
+    50% { border-color: #00ffaa; box-shadow: 0 0 45px #00ffaa88; }
+    100% { border-color: #00eaff; box-shadow: 0 0 35px #00eaff88; }
+}
+.container h1 { text-shadow:0 0 16px #00eaff; margin-bottom:25px; font-size:28px; }
+input {
+    width: 100%; padding: 18px; margin: 14px 0;
+    border-radius: 20px; border: 5px solid #00eaff;
+    background: rgba(0,30,50,0.5); color: #d9faff; font-size:18px;
+}
+input:focus { outline:none; border-color:#00ffaa; box-shadow:0 0 20px #00ffaa88; }
+button {
+    width: 100%; padding:20px; margin-top:12px;
+    border-radius:20px; border:5px solid #00eaff;
+    background: rgba(0,255,255,0.25); color:#00eaff;
+    font-size:20px; cursor:pointer; transition:0.25s; text-shadow:0 0 14px #00eaff;
+}
+button:hover { background: rgba(0,255,255,0.45); box-shadow:0 0 25px #00eaff; transform:scale(1.07); }
+.toggle-view { margin-top:15px; font-size:16px; color:#00ffaa; cursor:pointer; text-decoration:underline; }
+
+/* ====== DASHBOARD ====== */
+#dashboardPage { flex-direction: column; padding:40px; overflow-y:auto; width:100%; }
+h1 { text-shadow:0 0 16px #00eaff; font-size:36px; margin-bottom:30px; }
+h2 { text-shadow:0 0 14px #00eaff; font-size:26px; margin-bottom:15px; }
+.card {
+    background: rgba(0,30,50,0.28);
+    padding: 30px;
+    border-radius: 20px;
+    border: 5px solid #00eaff55;
+    box-shadow: 0 0 25px #00eaff55;
+    backdrop-filter: blur(14px);
+    margin-bottom: 50px;
+    width: 95%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    animation: pulseBorder 2s infinite alternate;
+}
+.estoque-grid, .expedicao-grid { display: grid; gap:15px; margin-top:15px; }
+.estoque-grid { grid-template-columns: repeat(7,1fr); }
+.expedicao-grid { grid-template-columns: repeat(6,1fr); }
+.posicao, .exp {
+    height:80px; display:flex; justify-content:center; align-items:center;
+    border-radius:15px; font-weight:bold; cursor:pointer; user-select:none;
+    border:4px solid #00eaff;
+    transition:0.3s; text-shadow:0 0 8px #00eaff; font-size:18px;
+    animation: pulseBorder 2s infinite alternate;
+}
+.posicao:hover, .exp:hover { box-shadow:0 0 35px #00eaff; transform:scale(1.08); }
+.vermelho { background:#b00000; }
+.azul { background:#0044ff; }
+.preto { background:#111; }
+.vazio { background:#333; color:#aaa; }
+.exp.oco { background:#222; color:#777; }
+
+/* ====== GRAFICOS ====== */
+canvas { 
+    margin-top:25px; 
+    border:4px solid #00eaff; 
+    border-radius:15px; 
+    background:rgba(0,0,20,0.35); 
+    width: 100% !important; 
+    height: 350px !important; 
+    box-sizing:border-box;
+}
+
+/* ====== BOTOES AMPLIADOS ====== */
+.card button { width:100%; padding:22px; font-size:20px; }
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+    <div class="container">
+        <h1 id="title">Login</h1>
+        <input type="text" id="nome" placeholder="Nome">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="action()">Entrar</button>
+        <div class="toggle-view" onclick="toggleView()">Não tem conta? Cadastre-se</div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardPage" style="display:none;">
+    <h1 id="dashboard">HUD Industrial - Dashboard</h1>
+
+    <!-- ESTOQUE -->
+    <div class="card">
+        <h2>Estoque</h2>
+        <div id="estoque" class="estoque-grid"></div>
+    </div>
+
+    <!-- EXPEDIÇÃO -->
+    <div class="card">
+        <h2>Expedição</h2>
+        <div id="expedicoes" class="expedicao-grid"></div>
+    </div>
+
+    <!-- GRAFICOS -->
+    <div class="card">
+        <h2>Dados do Processo</h2>
+        <canvas id="chartTemp"></canvas>
+        <canvas id="chartVars"></canvas>
+    </div>
+</div>
+
+<script>
+/* ====== USUARIOS ====== */
+let users = JSON.parse(localStorage.getItem("usuarios") || "[]");
+let isLogin = true;
+
+function toggleView() {
+    isLogin = !isLogin;
+    document.getElementById("title").innerText = isLogin ? "Login" : "Cadastro";
+    document.querySelector("button").innerText = isLogin ? "Entrar" : "Cadastrar";
+    document.querySelector(".toggle-view").innerText = isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Faça login";
+    document.getElementById("nome").value = "";
+    document.getElementById("senha").value = "";
+}
+
+function action() {
+    const nome = document.getElementById("nome").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    if(!nome || !senha){ alert("Preencha nome e senha!"); return; }
+
+    if(isLogin){
+        const user = users.find(u => u.nome === nome && u.senha === senha);
+        if(user){
+            document.getElementById("loginPage").style.display="none";
+            document.getElementById("dashboardPage").style.display="flex";
+            initDashboard();
+        } else {
+            alert("Nome ou senha incorretos!");
+        }
+    } else {
+        if(users.find(u=>u.nome===nome)){ alert("Nome já existe!"); return; }
+        users.push({nome,senha});
+        localStorage.setItem("usuarios", JSON.stringify(users));
+        alert("Usuário cadastrado!");
+        toggleView();
+    }
+}
+
+/* ====== DASHBOARD ====== */
+function initDashboard(){
+    /* ESTOQUE */
+    const estoque = document.getElementById("estoque");
+    const cores = ["vermelho","azul","preto","vazio"];
+    estoque.innerHTML="";
+    for(let i=1;i<=28;i++){
+        let c = cores[Math.floor(Math.random()*4)];
+        let d = document.createElement("div");
+        d.className = "posicao "+c;
+        d.innerHTML=i;
+        d.onclick = () => alert("Posição "+i);
+        estoque.appendChild(d);
+    }
+
+    /* EXPEDIÇÃO */
+    const exp = document.getElementById("expedicoes");
+    exp.innerHTML="";
+    for(let i=1;i<=12;i++){
+        let p = Math.random()<0.5 ? null : Math.floor(Math.random()*9000+1000);
+        let d = document.createElement("div");
+        d.className = "exp "+(p?"":"oco");
+        d.innerHTML = p?"Pedido "+p:"Vazio";
+        d.onclick = ()=>alert("Expedição "+(p||"vazio"));
+        exp.appendChild(d);
+    }
+
+    /* GRAFICOS */
+    let g1 = new Chart(document.getElementById("chartTemp"), { 
+        type:"line", 
+        data:{ labels:[], datasets:[{data:[], borderColor:"#00eaff", backgroundColor:"#00eaff44"}]}, 
+        options:{animation:false, responsive:true, maintainAspectRatio:false} 
+    });
+    setInterval(()=>{
+        let h = new Date().toLocaleTimeString().slice(0,5);
+        g1.data.labels.push(h);
+        g1.data.datasets[0].data.push(22 + Math.random()*4);
+        if(g1.data.labels.length>20){ g1.data.labels.shift(); g1.data.datasets[0].data.shift();}
+        g1.update();
+    },1000);
+
+    let g2 = new Chart(document.getElementById("chartVars"), {
+        type:"bar",
+        data:{labels:["Tensão","Umidade","Corrente"], datasets:[{backgroundColor:["#00eaff99","#00bbff99","#00ffaa99"],data:[220,45,1.2]}]},
+        options:{animation:false,responsive:true,maintainAspectRatio:false}
+    });
+    setInterval(()=>{
+        g2.data.datasets[0].data=[220+Math.random()*3,45+Math.random()*4,1.0+Math.random()*0.4];
+        g2.update();
+    },1000);
+}
+</script>
+</body>
+</html>

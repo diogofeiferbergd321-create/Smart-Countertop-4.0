@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>HUD Industrial Futurista</title>
+<style>
+/* ========================= */
+/* BASE DO TEMA — HUD FUTURISTA */
+/* ========================= */
+body {
+    margin:0;
+    background: radial-gradient(circle at center, #02121f 0%, #00070d 100%);
+    color: #d9faff;
+    font-family:'Segoe UI',Arial,sans-serif;
+    overflow-x:hidden;
+}
+main{
+    padding:30px;
+}
+
+/* ========================= */
+/* PAGINA DE CADASTRO */
+/* ========================= */
+#loginPage, #dashboardPage{
+    display:none;
+}
+#loginPage.active, #dashboardPage.active{
+    display:block;
+}
+.login-card{
+    width:400px;
+    margin:100px auto;
+    background: rgba(0,30,50,0.5);
+    padding:30px;
+    border-radius:20px;
+    border: 3px solid #00eaff;
+    box-shadow:0 0 20px #00eaff;
+}
+.login-card input{
+    width:100%;
+    padding:15px;
+    margin:10px 0;
+    border-radius:12px;
+    border:2px solid #00eaff;
+    background:rgba(0,255,255,0.05);
+    color:#d9faff;
+    font-size:16px;
+}
+.login-card button{
+    width:100%;
+    padding:15px;
+    margin-top:10px;
+    border-radius:20px;
+    border:2px solid #00eaff;
+    background:rgba(0,255,255,0.2);
+    color:#00eaff;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.2s;
+}
+.login-card button:hover{
+    background:rgba(0,255,255,0.35);
+    box-shadow:0 0 16px #00eaff;
+}
+
+/* ========================= */
+/* CARDS, BOTÕES E TOGGLE */
+/* ========================= */
+.card{
+    background: rgba(0,30,50,0.28);
+    padding: 25px;
+    border-radius: 20px;
+    border: 3px solid #00eaff;
+    box-shadow: 0 0 25px #00eaff;
+    margin-bottom: 40px;
+}
+.card h2{
+    margin-top:0;
+}
+.btn{
+    padding:14px 28px;
+    background: rgba(0,255,255,0.2);
+    border:3px solid #00eaff;
+    color:#00eaff;
+    cursor:pointer;
+    border-radius:40px;
+    margin-right:10px;
+    transition:0.2s;
+    text-shadow:0 0 10px #00eaff;
+}
+.btn:hover{
+    background: rgba(0,255,255,0.4);
+    box-shadow:0 0 20px #00eaff;
+    transform:scale(1.05);
+}
+.toggle{
+    width: 70px;
+    height: 30px;
+    border-radius:30px;
+    background: rgba(0,255,255,0.15);
+    border:3px solid #00eaff;
+    cursor:pointer;
+    position: relative;
+}
+.toggle::after{
+    content:"";
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#00eaff;
+    position:absolute;
+    left:2px;
+    top:2px;
+    transition:0.25s;
+}
+.toggle.on{
+    background: rgba(0,255,180,0.4);
+}
+.toggle.on::after{
+    left:40px;
+}
+
+/* ========================= */
+/* ESTOQUE E EXPEDIÇÃO */
+/* ========================= */
+.estoque-grid, .expedicao-grid{
+    display:grid;
+    gap:12px;
+}
+.estoque-grid{
+    grid-template-columns: repeat(7, 1fr);
+}
+.expedicao-grid{
+    grid-template-columns: repeat(6, 1fr);
+}
+.posicao, .exp{
+    height: 60px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:12px;
+    font-weight:bold;
+    cursor:pointer;
+    user-select:none;
+    border:3px solid #00eaff;
+    transition:0.3s;
+    animation: borderPulse 2s infinite alternate;
+}
+.posicao:hover, .exp:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 20px #00eaff;
+}
+.vermelho{background:#b00000;}
+.azul{background:#0044ff;}
+.preto{background:#111;}
+.vazio{background:#333;color:#aaa;}
+.exp.oco{background:#222;color:#777;}
+
+/* BORDAS ANIMADAS */
+@keyframes borderPulse{
+    0%{border-color:#00eaff;}
+    50%{border-color:#00ffff;}
+    100%{border-color:#00eaff;}
+}
+
+/* ========================= */
+/* INFORMAÇÕES DINÂMICAS */
+/* ========================= */
+#info{
+    font-size:18px;
+    padding:15px;
+    background: rgba(0,255,255,0.1);
+    border:3px solid #00eaff;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+/* ALERTA */
+#alertaH{
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding:25px;
+    font-size:20px;
+    background: rgba(255,40,0,0.15);
+    border: 3px solid rgba(255,60,0,0.5);
+    border-radius:18px;
+    box-shadow:0 0 25px #ff3300;
+    text-shadow:0 0 10px #ff6600;
+    opacity:0;
+    transition:0.3s;
+    backdrop-filter:blur(5px);
+}
+.alertaOn{
+    opacity:1 !important;
+    animation: alertaPulse 1s infinite;
+}
+@keyframes alertaPulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.08);}
+    100%{transform:scale(1);}
+}
+</style>
+</head>
+<body>
+
+<!-- PAGINA DE LOGIN -->
+<div id="loginPage" class="active">
+    <div class="login-card">
+        <h2>Cadastro/Login</h2>
+        <input type="text" id="username" placeholder="Nome">
+        <input type="password" id="password" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+        <button onclick="clearUsers()" style="margin-top:5px;background:#ff4444;">Apagar Cadastros</button>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardPage">
+<main>
+    <h1>HUD Industrial - Iron Man</h1>
+
+    <!-- CONTROLES -->
+    <div id="processo" class="card">
+        <h2>Controles</h2>
+        <button class="btn" onclick="alertOn()">Ativar Alerta</button>
+        <button class="btn" onclick="alertOff()">Desativar Alerta</button>
+        <br><br>
+        <div id="autoToggle" class="toggle"></div>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div id="estoqueArea" class="card">
+        <h2>Estoque</h2>
+        <div id="estoque" class="estoque-grid"></div>
+    </div>
+
+    <!-- EXPEDIÇÃO -->
+    <div id="expedicoesArea" class="card">
+        <h2>Expedição</h2>
+        <div id="expedicoes" class="expedicao-grid"></div>
+    </div>
+
+    <!-- INFORMAÇÕES DINÂMICAS -->
+    <div id="sensores" class="card">
+        <h2>Dados Ambientais</h2>
+        <div id="info">Carregando informações...</div>
+    </div>
+</main>
+</div>
+
+<!-- ALERTA -->
+<div id="alertaH">⚠ ALERTA DO SISTEMA ⚠</div>
+
+<script>
+/* ========================= */
+/* USUÁRIO LOCALSTORAGE */
+/* ========================= */
+function login(){
+    const name=document.getElementById("username").value.trim();
+    const pass=document.getElementById("password").value.trim();
+    if(!name || !pass){ alert("Preencha Nome e Senha!"); return;}
+    let users=JSON.parse(localStorage.getItem("users")||"[]");
+    if(!users.some(u=>u.name===name)){
+        users.push({name,pass});
+        localStorage.setItem("users",JSON.stringify(users));
+    }
+    let user=users.find(u=>u.name===name && u.pass===pass);
+    if(user){
+        document.getElementById("loginPage").classList.remove("active");
+        document.getElementById("dashboardPage").classList.add("active");
+        initDashboard();
+    }else{
+        alert("Senha incorreta!");
+    }
+}
+function clearUsers(){
+    localStorage.removeItem("users");
+    alert("Cadastros apagados!");
+}
+
+/* ========================= */
+/* ALERTA */
+function alertOn(){document.getElementById("alertaH").classList.add("alertaOn");}
+function alertOff(){document.getElementById("alertaH").classList.remove("alertaOn");}
+
+/* ========================= */
+/* TOGGLE */
+document.getElementById("autoToggle").onclick=function(){
+    this.classList.toggle("on");
+};
+
+/* ========================= */
+/* DASHBOARD: ESTOQUE, EXPEDIÇÃO, INFORMAÇÕES */
+function initDashboard(){
+    // ESTOQUE
+    const estoque=document.getElementById("estoque");
+    const cores=["vermelho","azul","preto","vazio"];
+    estoque.innerHTML="";
+    for(let i=1;i<=28;i++){
+        let c=cores[Math.floor(Math.random()*cores.length)];
+        let d=document.createElement("div");
+        d.className="posicao "+c;
+        d.innerHTML=i;
+        d.onclick=()=>alert("Estoque posição "+i);
+        estoque.appendChild(d);
+    }
+
+    // EXPEDIÇÃO
+    const exp=document.getElementById("expedicoes");
+    exp.innerHTML="";
+    for(let i=1;i<=12;i++){
+        let pedido=Math.random()<0.5?null:1000+i;
+        let d=document.createElement("div");
+        d.className="exp "+(pedido?"":"oco");
+        d.innerHTML=pedido?"Pedido "+pedido:"Vazio";
+        d.onclick=()=>alert("Expedição "+(pedido||"vazio"));
+        exp.appendChild(d);
+    }
+
+    // INFORMAÇÕES DINÂMICAS
+    const info=document.getElementById("info");
+    setInterval(()=>{
+        let tensao=(220+Math.floor(Math.random()*3)).toFixed(0);
+        let umidade=(45+Math.floor(Math.random()*5)).toFixed(0);
+        let corrente=(1+(Math.random()*0.4)).toFixed(2);
+        info.innerHTML=`Tensão: ${tensao}V | Umidade: ${umidade}% | Corrente: ${corrente}A`;
+    },1000);
+}
+</script>
+</body>
+</html>
+
+</html>
