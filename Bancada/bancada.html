@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>HUD Aranhaverso</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 /* ========================= */
-/* BACKGROUND ARANHAVERSO    */
+/* MODO ESCURO + COMPACTO    */
 /* ========================= */
 body {
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e, #162447, #1f4068, #e43f5a);
+    background: #0d0d0d;
     color: #fff;
     overflow-x: hidden;
+    font-size: 14px; /* texto geral menor */
 }
 
 /* ========================= */
-/* LOGIN SCREEN              */
+/* LOGIN MAIS COMPACTO       */
 /* ========================= */
 #loginScreen {
     position: fixed;
@@ -31,98 +34,76 @@ body {
 
 #loginScreen .login-box {
     background: rgba(20, 20, 40, 0.85);
-    padding: 40px;
-    border-radius: 25px;
-    border: 4px solid #ff1a1a;
-    box-shadow: 0 0 30px #ff1a1a;
+    padding: 25px;
+    border-radius: 18px;
+    border: 3px solid #ff1a1a;
+    box-shadow: 0 0 15px #ff1a1a;
     text-align: center;
-    animation: loginGlow 2s infinite alternate;
 }
 
 #loginScreen input {
-    width: 250px;
-    padding: 14px;
-    margin: 10px 0;
-    border-radius: 12px;
+    width: 220px;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 10px;
     border: 2px solid #ff1a1a;
-    font-size: 18px;
+    font-size: 15px;
 }
 
 #loginScreen button {
-    padding: 12px 28px;
-    font-size: 18px;
-    border-radius: 12px;
+    padding: 8px 20px;
+    font-size: 16px;
+    border-radius: 10px;
     border: 2px solid #ff1a1a;
     background: #ff1a1a;
     color: #fff;
     cursor: pointer;
     transition: 0.3s;
 }
-
-#loginScreen button:hover {
-    background: #ff4d4d;
-}
-
-@keyframes loginGlow {
-    0% { box-shadow: 0 0 30px #ff1a1a; border-color: #ff1a1a; }
-    50% { box-shadow: 0 0 50px #ffcc00; border-color: #ffcc00; }
-    100% { box-shadow: 0 0 30px #ff1a1a; border-color: #ff1a1a; }
-}
+#loginScreen button:hover { background: #ff3b3b; }
 
 /* ========================= */
-/* MAIN DASHBOARD            */
-/* ========================= */
-main {
-    padding: 30px;
-    margin-left: 20px;
-}
-
-/* ========================= */
-/* HUD DIREITO               */
+/* HUD COMPACTO              */
 /* ========================= */
 #hud {
     position: fixed;
-    top: 40px;
-    right: 40px;
-    width: 350px;
-    padding: 25px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 20px;
-    border: 5px solid #ff1a1a;
-    box-shadow: 0 0 30px #ff1a1a;
-    font-size: 20px;
+    top: 20px;
+    right: 20px;
+    width: 240px;        /* REDUZIDO */
+    padding: 15px;       /* REDUZIDO */
+    background: rgba(0,0,0,0.7);
+    border-radius: 14px;
+    border: 3px solid #ff1a1a;
+    box-shadow: 0 0 12px #ff1a1a;
+    font-size: 14px;     /* REDUZIDO */
     z-index: 999;
-    animation: hudGlow 2s infinite alternate;
 }
 
-.hud-item {
-    margin: 16px 0;
-}
-
-@keyframes hudGlow {
-    0% { box-shadow: 0 0 30px #ff1a1a; border-color: #ff1a1a; }
-    50% { box-shadow: 0 0 50px #ffcc00; border-color: #ffcc00; }
-    100% { box-shadow: 0 0 30px #ff1a1a; border-color: #ff1a1a; }
-}
+.hud-item { margin: 8px 0; }
 
 /* ========================= */
-/* CARDS                     */
+/* CARDS AINDA MENORES       */
 /* ========================= */
 .card {
-    background: rgba(0, 0, 20, 0.6);
-    padding: 20px;
-    border-radius: 20px;
-    border: 4px solid #00eaff;
-    box-shadow: 0 0 20px #00eaff;
-    margin-bottom: 30px;
+    background: rgba(10, 10, 20, 0.8);
+    padding: 10px;                /* REDUZIDO */
+    border-radius: 12px;          /* REDUZIDO */
+    border: 2px solid #00eaff;    /* REDUZIDO */
+    box-shadow: 0 0 6px #00eaff;  /* REDUZIDO */
+    margin-bottom: 14px;          /* REDUZIDO */
+}
+
+.card h2 {
+    font-size: 17px;              /* TÍTULOS MENORES */
+    margin-bottom: 6px;
 }
 
 /* ========================= */
-/* GRID ESTOQUE & EXPEDICAO  */
+/* GRID MAIS APERTADO        */
 /* ========================= */
 .estoque-grid, .expedicao-grid, .montagem-grid {
     display: grid;
-    gap: 12px;
+    gap: 6px; /* menor */
 }
 
 .estoque-grid { grid-template-columns: repeat(7, 1fr); }
@@ -130,40 +111,59 @@ main {
 .montagem-grid { grid-template-columns: repeat(4, 1fr); }
 
 .posicao, .exp, .mont {
-    height: 60px;
+    width: 45px;          /* largura igual à altura */
+    height: 45px;         /* mantém tamanho igual */
+    font-size: 13px;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 12px;
+    border-radius: 50%;   /* TORNA CÍRCULO */
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
-    border: 3px solid #fff;
-    animation: pulse 2s infinite alternate;
+    border: 2px solid #fff;
+    text-align: center;
 }
 
-@keyframes pulse {
-    from { box-shadow: 0 0 6px #00eaff66; }
-    to { box-shadow: 0 0 20px #00eaffdd; }
-}
+
 
 .vermelho { background: #e43f5a; }
 .azul { background: #1f4068; }
 .roxo { background: #5a2d82; }
 .vazio { background: #333; color: #aaa; }
 
-/* BOTÃO APAGAR CADASTRO */
+/* ========================= */
+/* GRÁFICOS MENORES          */
+/* ========================= */
+canvas {
+    max-width: 380px;  /* ANTES 450 */
+    max-height: 150px; /* ANTES 180 */
+    margin: 10px auto;
+    display: block;
+}
+
+/* BOTÃO APAGAR */
 .delete-btn {
-    margin-top: 12px;
-    padding: 10px 20px;
-    border-radius: 10px;
+    margin-top: 10px;
+    padding: 6px 14px;
+    border-radius: 8px;
     border: 2px solid #ff1a1a;
     background: #ff1a1a;
     color: #fff;
     cursor: pointer;
+    font-size: 14px;
 }
-.delete-btn:hover { background: #ff4d4d; }
+.delete-btn:hover { background: #ff3b3b; }
 
+main {
+    padding: 15px;
+    margin-left: 10px;
+}
+
+h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
 </style>
 </head>
 <body>
@@ -188,6 +188,14 @@ main {
 <main>
     <h1>Dashboard - Aranhaverso HUD</h1>
 
+    <!-- GRAFICOS -->
+    <div class="card">
+        <h2>Gráficos do Sistema</h2>
+        <canvas id="graficoTemp"></canvas>
+        <canvas id="graficoUmid"></canvas>
+        <canvas id="graficoCorr"></canvas>
+    </div>
+
     <!-- ESTOQUE -->
     <div class="card">
         <h2>Estoque</h2>
@@ -210,69 +218,106 @@ main {
 </main>
 
 <script>
-/* LOGIN SIMPLES COM LOCALSTORAGE */
+/* LOGIN */
 function login() {
     const nome = document.getElementById('nome').value;
     const senha = document.getElementById('senha').value;
-    if(!nome || !senha){ alert('Preencha nome e senha'); return; }
-    localStorage.setItem('usuario', nome);
-    localStorage.setItem('senha', senha);
-    document.getElementById('loginScreen').style.display = 'none';
+
+    if (!nome || !senha) { alert("Preencha todos os campos!"); return; }
+
+    const userData = { nome, senha };
+    localStorage.setItem("userData", JSON.stringify(userData));
+    document.getElementById("loginScreen").style.display = "none";
 }
 
+window.onload = () => {
+    if (localStorage.getItem("userData")) {
+        document.getElementById("loginScreen").style.display = "none";
+    }
+};
+
 /* APAGAR CADASTRO */
-function apagarCadastro(){
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('senha');
-    alert('Cadastro apagado!');
+function apagarCadastro() {
+    localStorage.removeItem("userData");
+    alert("Cadastro apagado.");
     location.reload();
 }
 
-/* CARREGAR CADASTRO AUTOMATICAMENTE */
-window.onload = () => {
-    if(localStorage.getItem('usuario')){
-        document.getElementById('loginScreen').style.display = 'none';
+/* GRID */
+function createGrid(container, count, type) {
+    const cores = ["vermelho", "azul", "roxo", "vazio"];
+
+    for (let i = 1; i <= count; i++) {
+        let div = document.createElement("div");
+        div.className = cores[Math.floor(Math.random()*4)] + " " + type;
+        div.innerText = type === "posicao" ? i : type.toUpperCase() + " " + i;
+
+        div.addEventListener("click", () => {
+            let next = cores[(cores.indexOf(div.classList[0]) + 1) % 4];
+            div.className = next + " " + type;
+        });
+
+        container.appendChild(div);
     }
 }
 
-/* ========================= */
-/* ESTOQUE */
-const estoque = document.getElementById('estoque');
-for(let i=1;i<=28;i++){
-    let div = document.createElement('div');
-    div.className = ['vermelho','azul','roxo','vazio'][Math.floor(Math.random()*4)] + " posicao";
-    div.innerText = i;
-    estoque.appendChild(div);
+createGrid(document.getElementById("estoque"), 28, "posicao");
+createGrid(document.getElementById("expedicoes"), 12, "exp");
+createGrid(document.getElementById("montagem"), 8, "mont");
+
+/* GRÁFICOS */
+let tempChart, umidChart, corrChart;
+
+function gerarGraficos() {
+    const ctxT = document.getElementById("graficoTemp");
+    const ctxU = document.getElementById("graficoUmid");
+    const ctxC = document.getElementById("graficoCorr");
+
+    tempChart = new Chart(ctxT, {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "Temperatura", borderColor: "red", data: [] }] },
+        options: { responsive: true }
+    });
+
+    umidChart = new Chart(ctxU, {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "Umidade", borderColor: "blue", data: [] }] },
+        options: { responsive: true }
+    });
+
+    corrChart = new Chart(ctxC, {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "Corrente", borderColor: "yellow", data: [] }] },
+        options: { responsive: true }
+    });
 }
 
-/* ========================= */
-/* EXPEDIÇÃO */
-const expedicoes = document.getElementById('expedicoes');
-for(let i=1;i<=12;i++){
-    let div = document.createElement('div');
-    div.className = ['vermelho','azul','roxo','vazio'][Math.floor(Math.random()*4)] + " exp";
-    div.innerText = "Pedido "+i;
-    expedicoes.appendChild(div);
+function atualizarHUD() {
+    let T = (20 + Math.random()*10).toFixed(1);
+    let U = (40 + Math.random()*40).toFixed(1);
+    let C = (1 + Math.random()*4).toFixed(2);
+
+    document.getElementById("temp").innerText = T;
+    document.getElementById("umid").innerText = U;
+    document.getElementById("corr").innerText = C;
+
+    let timeLabel = new Date().toLocaleTimeString();
+
+    tempChart.data.labels.push(timeLabel);
+    umidChart.data.labels.push(timeLabel);
+    corrChart.data.labels.push(timeLabel);
+
+    tempChart.data.datasets[0].data.push(T);
+    umidChart.data.datasets[0].data.push(U);
+    corrChart.data.datasets[0].data.push(C);
+
+    tempChart.update();
+    umidChart.update();
+    corrChart.update();
 }
 
-/* ========================= */
-/* MONTAGEM */
-const montagem = document.getElementById('montagem');
-for(let i=1;i<=8;i++){
-    let div = document.createElement('div');
-    div.className = ['vermelho','azul','roxo','vazio'][Math.floor(Math.random()*4)] + " mont";
-    div.innerText = "Estação "+i;
-    montagem.appendChild(div);
-}
-
-/* ========================= */
-/* HUD ATUALIZAÇÃO DINÂMICA */
-<div id="hud">
-    <div class="hud-item">Temperatura: <span id="temp">--</span> °C</div>
-    <div class="hud-item">Umidade: <span id="umid">--</span> %</div>
-    <div class="hud-item">Corrente: <span id="corr">--</span> A</div>
-</div>
-
+gerarGraficos();
+setInterval(atualizarHUD, 2000);
 </script>
 
 </body>
