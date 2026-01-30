@@ -1,0 +1,66 @@
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-card{
+    width:30%;
+    padding:40px;
+    background-color: #EAEAEA;
+    border-radius: 10px;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap:15px;
+}
+
+.fake-input{
+    display: flex;
+    width: 300px;
+    font-size: 18px;
+    padding:4px;
+    gap:4px;
+    background-color: coral;
+    border-radius: 4px;
+    flex-direction: column;
+}
+
+.fake-input label{
+    font-family: arial;
+    color:white;
+}
+
+.fake-input input{
+    width:100%;
+    border:0;
+    background:transparent;
+    font-size: 24px;
+    color:white;
+}
+
+.fake-input input:focus{
+    outline:0;
+}
+
+button{
+    width:250px;
+    font-size: 24px;
+    background-color: crimson;
+    color:white;
+    border: 0;
+    border-radius: 4px;
+}
+
+button:hover{
+    transform:scale(1.05);
+    background-color:firebrick;
+    cursor: pointer;
+}
+
+button:active{
+    transform: scale(0.95);
+}

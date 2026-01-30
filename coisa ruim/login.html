@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Login - Aranhaverso</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #162447, #1f4068, #e43f5a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.login-box {
+    background: rgba(0,0,0,0.7);
+    padding: 40px;
+    border-radius: 20px;
+    border: 4px solid #00eaff;
+    box-shadow: 0 0 25px #00eaff;
+    width: 320px;
+    text-align: center;
+}
+
+.login-box h1 {
+    margin-bottom: 30px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #ff1a1a;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background: #ff4d4d;
+}
+
+.erro {
+    color: #ff4d4d;
+    margin-top: 15px;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+    <h1>🕷️ Aranhaverso</h1>
+
+    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="password" id="senha" placeholder="Senha">
+
+    <button onclick="login()">Entrar</button>
+
+    <div id="erro" class="erro">Usuário ou senha inválidos</div>
+</div>
+
+<script>
+function login() {
+    const usuario = document.getElementById("usuario").value;
+    const senha = document.getElementById("senha").value;
+
+    // LOGIN FIXO (exemplo)
+    if (usuario === "admin" && senha === "1234") {
+        localStorage.setItem("userData", JSON.stringify({
+            user: usuario,
+            loginTime: new Date()
+        }));
+
+        window.location.href = "dashboard.html";
+    } else {
+        document.getElementById("erro").style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>

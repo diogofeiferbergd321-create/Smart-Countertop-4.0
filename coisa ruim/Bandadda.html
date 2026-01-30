@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard - Aranhaverso HUD</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ========================= */
+/* BACKGROUND                */
+/* ========================= */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #162447, #1f4068, #e43f5a);
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* ========================= */
+/* HUD                       */
+/* ========================= */
+#hud {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    width: 320px;
+    padding: 25px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    border: 5px solid #ff1a1a;
+    box-shadow: 0 0 30px #ff1a1a;
+    font-size: 18px;
+    z-index: 999;
+}
+
+.hud-item { margin: 12px 0; }
+
+/* ========================= */
+/* MAIN                      */
+/* ========================= */
+main {
+    padding: 30px;
+}
+
+/* ========================= */
+/* CARDS                     */
+/* ========================= */
+.card {
+    background: rgba(0, 0, 20, 0.6);
+    padding: 20px;
+    border-radius: 20px;
+    border: 4px solid #00eaff;
+    box-shadow: 0 0 20px #00eaff;
+    margin-bottom: 30px;
+}
+
+/* ========================= */
+/* GRÁFICOS                  */
+/* ========================= */
+.grafico-box {
+    height: 200px;
+    margin-bottom: 25px;
+}
+
+/* ========================= */
+/* GRIDS                     */
+/* ========================= */
+.estoque-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+.expedicao-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.montagem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+.posicao, .exp, .mont {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 3px solid #fff;
+}
+
+/* ========================= */
+/* CORES                     */
+/* ========================= */
+.vermelho { background: #e43f5a; }
+.azul { background: #1f4068; }
+.roxo { background: #5a2d82; }
+.vazio { background: #333; color: #aaa; }
+
+/* ========================= */
+/* BOTÃO                     */
+/* ========================= */
+.delete-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 2px solid #ff1a1a;
+    background: #ff1a1a;
+    color: #fff;
+    cursor: pointer;
+}
+.delete-btn:hover { background: #ff4d4d; }
+</style>
+
+<script>
+/* BLOQUEIO SEM LOGIN */
+if (!localStorage.getItem("userData")) {
+    window.location.href = "login.html";
+}
+</script>
+</head>
+
+<body>
+
+<!-- HUD -->
+<div id="hud">
+    <div class="hud-item">Temperatura: <span id="temp">--</span> °C</div>
+    <div class="hud-item">Umidade: <span id="umid">--</span> %</div>
+    <div class="hud-item">Corrente: <span id="corr">--</span> A</div>
+</div>
+
+<main>
+    <h1>Dashboard - Aranhaverso</h1>
+
+    <!-- GRÁFICOS -->
+    <div class="card">
+        <h2>Gráficos do Sistema</h2>
+
+        <div class="grafico-box">
+            <canvas id="graficoTemp"></canvas>
+        </div>
+
+        <div class="grafico-box">
+            <canvas id="graficoUmid"></canvas>
+        </div>
+
+        <div class="grafico-box">
+            <canvas id="graficoCorr"></canvas>
+        </div>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div class="card">
+        <h2>Estoque</h2>
+        <div id="estoque" class="estoque-grid"></div>
+    </div>
+
+    <!-- EXPEDIÇÃO -->
+    <div class="card">
+        <h2>Expedição</h2>
+        <div id="expedicoes" class="expedicao-grid"></div>
+    </div>
+
+    <!-- MONTAGEM -->
+    <div class="card">
+        <h2>Montagem</h2>
+        <div id="montagem" class="montagem-grid"></div>
+    </div>
+
+    <button class="delete-btn" onclick="logout()">Sair</button>
+</main>
+
+<script>
+/* ========================= */
+/* GRIDS                     */
+/* ========================= */
+function createGrid(container, count, type) {
+    const cores = ["vermelho", "azul", "roxo", "vazio"];
+
+    for (let i = 1; i <= count; i++) {
+        const div = document.createElement("div");
+        div.className = cores[Math.floor(Math.random() * 4)] + " " + type;
+        div.innerText = type === "posicao" ? i : type.toUpperCase() + " " + i;
+
+        div.onclick = () => {
+            const atual = cores.indexOf(div.classList[0]);
+            div.className = cores[(atual + 1) % cores.length] + " " + type;
+        };
+
+        container.appendChild(div);
+    }
+}
+
+createGrid(document.getElementById("estoque"), 28, "posicao");
+createGrid(document.getElementById("expedicoes"), 12, "exp");
+createGrid(document.getElementById("montagem"), 8, "mont");
+
+/* ========================= */
+/* GRÁFICOS + HUD            */
+/* ========================= */
+let tempChart, umidChart, corrChart;
+
+function criarGraficos() {
+    tempChart = new Chart(graficoTemp, {
+        type: "line",
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        },
+        data: {
+            labels: [],
+            datasets: [{
+                label: "Temperatura (°C)",
+                borderColor: "red",
+                data: []
+            }]
+        }
+    });
+
+    umidChart = new Chart(graficoUmid, {
+        type: "line",
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        },
+        data: {
+            labels: [],
+            datasets: [{
+                label: "Umidade (%)",
+                borderColor: "blue",
+                data: []
+            }]
+        }
+    });
+
+    corrChart = new Chart(graficoCorr, {
+        type: "line",
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        },
+        data: {
+            labels: [],
+            datasets: [{
+                label: "Corrente (A)",
+                borderColor: "yellow",
+                data: []
+            }]
+        }
+    });
+}
+
+function atualizarHUD() {
+    const T = (20 + Math.random() * 10).toFixed(1);
+    const U = (40 + Math.random() * 40).toFixed(1);
+    const C = (1 + Math.random() * 4).toFixed(2);
+    const hora = new Date().toLocaleTimeString();
+
+    temp.innerText = T;
+    umid.innerText = U;
+    corr.innerText = C;
+
+    tempChart.data.labels.push(hora);
+    umidChart.data.labels.push(hora);
+    corrChart.data.labels.push(hora);
+
+    tempChart.data.datasets[0].data.push(T);
+    umidChart.data.datasets[0].data.push(U);
+    corrChart.data.datasets[0].data.push(C);
+
+    tempChart.update();
+    umidChart.update();
+    corrChart.update();
+}
+
+function logout() {
+    localStorage.removeItem("userData");
+    window.location.href = "login.html";
+}
+
+criarGraficos();
+setInterval(atualizarHUD, 2000);
+</script>
+
+</body>
+</html>
